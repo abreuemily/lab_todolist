@@ -1,2 +1,52 @@
-<label for="titulo-tarefa">Nova Tarefa:</label>
-<input type="text" id="titulo-tarefa" name="titulo" required aria-required="true" placeholder="Ex: Estudar WCAG"> 
+{% extends "base.html" %}
+
+{% block content %}
+<section id="adicionar-tarefa">
+    <h2>Minhas Tarefas</h2>
+    
+    <form action="{{ url_for('adicionar') }}" method="POST" aria-labelledby="label-add">
+        <label id="label-add" for="titulo">O que precisa ser feito?</label>
+        <input type="text" id="titulo" name="titulo" 
+               placeholder="Ex: Estudar OWASP Top 10" 
+               required 
+               aria-required="true">
+        <button type="submit">Adicionar Tarefa</button>
+    </form>
+</section>
+
+<hr aria-hidden="true">
+
+<section id="lista-tarefas">
+    <h3>Lista de Atividades</h3>
+    {% if tarefas %}
+        <ul role="list">
+            {% for tarefa in tarefas %}
+            <li class="item-tarefa">
+                <span class="{% if tarefa.concluida %}tarefa-concluida{% endif %}">
+                    {{ tarefa.titulo }}
+                </span>
+
+                <div class="acoes">
+                    <form action="{{ url_for('alternar', tarefa_id=tarefa.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" aria-label="Marcar {{ tarefa.titulo }} como {% if tarefa.concluida %}pendente{% else %}concluída{% endif %}">
+                            {% if tarefa.concluida %}Desmarcar{% else %}Concluir{% endif %}
+                        </button>
+                    </form>
+
+                    <form action="{{ url_for('deletar', tarefa_id=tarefa.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" 
+                                class="btn-delete" 
+                                onclick="return confirm('LGPD: Você confirma a exclusão definitiva destes dados?')"
+                                aria-label="Excluir tarefa: {{ tarefa.titulo }}">
+                            Excluir
+                        </button>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhuma tarefa cadastrada. Privacidade garantida: seu banco de dados está vazio.</p>
+    {% endif %}
+</section>
+{% endblock %}
